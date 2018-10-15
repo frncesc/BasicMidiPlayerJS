@@ -1,6 +1,6 @@
 'use strict'
 
-var parser = require('note-parser')
+var parser = require('../note-parser/index')
 
 /**
  * Create a Soundfont object

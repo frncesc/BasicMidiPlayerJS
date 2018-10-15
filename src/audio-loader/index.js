@@ -143,5 +143,7 @@ function midiJsToJson (data) {
   return JSON.parse(data.slice(begin, end) + '}')
 }
 
-if (typeof module === 'object' && module.exports) module.exports = load
-if (typeof window !== 'undefined') window.loadAudio = load
+//if (typeof module === 'object' && module.exports) module.exports = load
+//if (typeof window !== 'undefined') window.loadAudio = load
+module.exports.load = load
+

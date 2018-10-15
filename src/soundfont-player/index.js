@@ -1,7 +1,7 @@
 'use strict'
 
-var load = require('audio-loader')
-var player = require('sample-player')
+var load = require('../audio-loader/index')
+var player = require('../sample-player/index')
 
 /**
  * Load a soundfont instrument. It returns a promise that resolves to a
@@ -81,5 +81,7 @@ var Soundfont = require('./legacy')
 Soundfont.instrument = instrument
 Soundfont.nameToUrl = nameToUrl
 
-if (typeof module === 'object' && module.exports) module.exports = Soundfont
-if (typeof window !== 'undefined') window.Soundfont = Soundfont
+//if (typeof module === 'object' && module.exports) module.exports = Soundfont
+//if (typeof window !== 'undefined') window.Soundfont = Soundfont
+module.exports.Soundfont = Soundfont
+
