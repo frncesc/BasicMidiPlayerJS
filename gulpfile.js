@@ -28,7 +28,9 @@ gulp.task("module", function() {
     b.exclude("bundle");
 
     return (b
-            .transform("babelify", { presets: ["env"] })
+            .transform("babelify", { 
+               presets: ["@babel/env"] 
+            })
             .bundle()
             .pipe(source("midiplayer.js"))
             .pipe(buffer())
@@ -50,7 +52,7 @@ gulp.task("browserify", function() {
     b.external("fs");
 
     return (b
-            .transform("babelify", { presets: ["env"] })
+            .transform("babelify", { presets: ["@babel/env"] })
             .bundle()
             .pipe(source("midiplayer.js"))
             .pipe(buffer())
