@@ -10,7 +10,7 @@ class Utils {
 	 */
 	static byteToHex(byte) {
 		// Ensure hex string always has two chars
-		return ('0' + byte.toString(16)).slice(-2);
+		return `0${byte.toString(16)}`.slice(-2);
 	}
 
 	/**

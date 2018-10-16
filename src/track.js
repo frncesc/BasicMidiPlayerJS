@@ -1,5 +1,5 @@
-const Constants = require("./constants").Constants;
-const Utils = require("./utils").Utils;
+const Constants = require('./constants').Constants;
+const Utils = require('./utils').Utils;
 
 /**
  * Class representing a track.  Contains methods for parsing events and keeping track of pointer.
@@ -242,10 +242,10 @@ class Track	{
 					}
 
 					if (eventJson.data[1] == 0) {
-						eventJson.keySignature += " Major";
+						eventJson.keySignature += ' Major';
 
 					} else if (eventJson.data[1] == 1) {
-						eventJson.keySignature += " Minor";
+						eventJson.keySignature += ' Minor';
 					}
 
 					break;
@@ -253,7 +253,7 @@ class Track	{
 					eventJson.name = 'Sequencer-Specific Meta-event';
 					break;
 				default:
-					eventJson.name = 'Unknown: ' + this.data[eventStartIndex + 1].toString(16);
+					eventJson.name = `Unknown: ${this.data[eventStartIndex + 1].toString(16)}`;
 					break;
 			}
 
@@ -345,7 +345,7 @@ class Track	{
 					this.pointer += deltaByteCount + 3;
 
 				} else {
-					eventJson.name = 'Unknown.  Pointer: ' + this.pointer.toString() + ' '  + eventStartIndex.toString() + ' ' + this.data.length;
+					eventJson.name = `Unknown.  Pointer: ${this.pointer.toString()} ${eventStartIndex.toString()} ${this.data.length}`;
 				}
 			}
 		}

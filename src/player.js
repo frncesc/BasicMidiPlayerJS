@@ -1,5 +1,5 @@
-const Utils = require("./utils").Utils;
-const Track = require("./track").Track;
+const Utils = require('./utils').Utils;
+const Track = require('./track').Track;
 
 // Polyfill Uint8Array.forEach: Doesn't exist on Safari <10
 if (!Uint8Array.prototype.forEach) {
@@ -34,7 +34,7 @@ class Player {
 		this.totalEvents = 0;
 		this.eventListeners = {};
 
-		if (typeof(eventHandler) === 'function') this.on('midiEvent', eventHandler);
+		if (typeof (eventHandler) === 'function') this.on('midiEvent', eventHandler);
 	}
 
 	/**
@@ -182,7 +182,7 @@ class Player {
 			this.inLoop = true;
 			this.tick = this.getCurrentTick();
 
-			this.tracks.forEach(function(track) {
+			this.tracks.forEach(function (track) {
 				// Handle next event
 				if (!dryRun && this.endOfFile()) {
 					//console.log('end of file')
@@ -206,7 +206,7 @@ class Player {
 
 			}, this);
 
-			if (!dryRun) this.triggerPlayerEvent('playing', {tick: this.tick});
+			if (!dryRun) this.triggerPlayerEvent('playing', { tick: this.tick });
 			this.inLoop = false;
 		}
 	}
@@ -280,7 +280,7 @@ class Player {
 		this.startTick = tick;
 
 		// Need to set track event indexes to the nearest possible event to the specified tick.
-		this.tracks.forEach(function(track) {
+		this.tracks.forEach(function (track) {
 			track.setEventIndexByTick(tick);
 		});
 		return this;
@@ -292,7 +292,7 @@ class Player {
 	 * @return {Player}
 	 */
 	skipToPercent(percent) {
-		if (percent < 0 || percent > 100) throw "Percent must be number between 1 and 100.";
+		if (percent < 0 || percent > 100) throw 'Percent must be number between 1 and 100.';
 		this.skipToTick(Math.round(percent / 100 * this.totalTicks));
 		return this;
 	}
@@ -304,7 +304,7 @@ class Player {
 	 */
 	skipToSeconds(seconds) {
 		var songTime = this.getSongTime();
-		if (seconds < 0 || seconds > songTime) throw seconds + " seconds not within song time of " + songTime;
+		if (seconds < 0 || seconds > songTime) throw `${seconds} seconds not within song time of ${songTime}`;
 		this.skipToPercent(seconds / songTime * 100);
 		return this;
 	}
@@ -370,7 +370,7 @@ class Player {
 	 * @return {number}
 	 */
 	getTotalEvents() {
-		return this.tracks.reduce((a, b) => {return {events: {length: a.events.length + b.events.length}}}, {events: {length: 0}}).events.length;
+		return this.tracks.reduce((a, b) => { return { events: { length: a.events.length + b.events.length } } }, { events: { length: 0 } }).events.length;
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Player {
 	 */
 	bytesProcessed() {
 		// Currently assume header chunk is strictly 14 bytes
-		return 14 + this.tracks.length * 8 + this.tracks.reduce((a, b) => {return {pointer: a.pointer + b.pointer}}, {pointer: 0}).pointer;
+		return 14 + this.tracks.length * 8 + this.tracks.reduce((a, b) => { return { pointer: a.pointer + b.pointer } }, { pointer: 0 }).pointer;
 	}
 
 	/**
@@ -411,7 +411,7 @@ class Player {
 	 * @return {number}
 	 */
 	eventsPlayed() {
-		return this.tracks.reduce((a, b) => {return {eventIndex: a.eventIndex + b.eventIndex}}, {eventIndex: 0}).eventIndex;
+		return this.tracks.reduce((a, b) => { return { eventIndex: a.eventIndex + b.eventIndex } }, { eventIndex: 0 }).eventIndex;
 	}
 
 	/**
