@@ -1,15 +1,15 @@
 'use strict'
 
-// util
-function fillStr (s, num) { return Array(num + 1).join(s) }
-function isNum (x) { return typeof x === 'number' }
-function isStr (x) { return typeof x === 'string' }
-function isDef (x) { return typeof x !== 'undefined' }
-function midiToFreq (midi, tuning) {
-  return Math.pow(2, (midi - 69) / 12) * (tuning || 440)
-}
+module.exports = {}
 
-var REGEX = /^([a-gA-G])(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)\s*$/
+// util
+const fillStr = (s, num) => Array(num + 1).join(s)
+const isNum = x => typeof x === 'number'
+const isStr = x => typeof x === 'string'
+const isDef = x => typeof x !== 'undefined'
+const midiToFreq = (midi, tuning) => Math.pow(2, (midi - 69) / 12) * (tuning || 440)
+
+const REGEX = /^([a-gA-G])(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)\s*$/
 /**
  * A regex for matching note strings in scientific notation.
  *
@@ -44,9 +44,9 @@ var REGEX = /^([a-gA-G])(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)\s*$/
  * parser.regex().exec('CMaj7')
  * // => ['CMaj7', 'C', '', '', 'Maj7']
  */
-export function regex () { return REGEX }
+module.exports.regex = () => REGEX;
 
-var SEMITONES = [0, 2, 4, 5, 7, 9, 11]
+const SEMITONES = [0, 2, 4, 5, 7, 9, 11]
 /**
  * Parse a note name in scientific notation an return it's components,
  * and some numeric properties including midi number and frequency.
@@ -90,16 +90,16 @@ var SEMITONES = [0, 2, 4, 5, 7, 9, 11]
  * parse('fx')
  * // => { letter: 'F', acc: '##', pc: 'F##', step: 3, alt: 2, chroma: 7 })
  */
-export function parse (str, isTonic, tuning) {
+module.exports.parse = (str, isTonic, tuning) => {
   if (typeof str !== 'string') return null
-  var m = REGEX.exec(str)
+  const m = REGEX.exec(str)
   if (!m || (!isTonic && m[4])) return null
 
-  var p = { letter: m[1].toUpperCase(), acc: m[2].replace(/x/g, '##') }
+  const p = { letter: m[1].toUpperCase(), acc: m[2].replace(/x/g, '##') }
   p.pc = p.letter + p.acc
   p.step = (p.letter.charCodeAt(0) + 3) % 7
   p.alt = p.acc[0] === 'b' ? -p.acc.length : p.acc.length
-  var pos = SEMITONES[p.step] + p.alt
+  const pos = SEMITONES[p.step] + p.alt
   p.chroma = pos < 0 ? 12 + pos : pos % 12
   if (m[3]) { // has octave
     p.oct = +m[3]
@@ -110,9 +110,9 @@ export function parse (str, isTonic, tuning) {
   return p
 }
 
-var LETTERS = 'CDEFGAB'
-function accStr (n) { return !isNum(n) ? '' : n < 0 ? fillStr('b', -n) : fillStr('#', n) }
-function octStr (n) { return !isNum(n) ? '' : '' + n }
+const LETTERS = 'CDEFGAB'
+const accStr = n => !isNum(n) ? '' : n < 0 ? fillStr('b', -n) : fillStr('#', n)
+const octStr = n => !isNum(n) ? '' : '' + n
 
 /**
  * Create a string from a parsed object or `step, alteration, octave` parameters
@@ -128,7 +128,7 @@ function octStr (n) { return !isNum(n) ? '' : '' + n }
  * parser.build(3, -1) // => 'Fb'
  * parser.build(3, -1, 4) // => 'Fb4'
  */
-export function build (s, a, o) {
+module.exports.build = (s, a, o) => {
   if (s === null || typeof s === 'undefined') return null
   if (s.step) return build(s.step, s.alt, s.oct)
   if (s < 0 || s > 6) return null
@@ -152,9 +152,9 @@ export function build (s, a, o) {
  * parser.midi(60) // => 60
  * parser.midi('60') // => 60
  */
-export function midi (note) {
+module.exports.midi = note => {
   if ((isNum(note) || isStr(note)) && note >= 0 && note < 128) return +note
-  var p = parse(note)
+  const p = parse(note)
   return p && isDef(p.midi) ? p.midi : null
 }
 
@@ -179,15 +179,15 @@ export function midi (note) {
  * parser.freq(69) // => 440
  * parser.freq('69', 442) // => 442
  */
-export function freq (note, tuning) {
-  var m = midi(note)
+module.exports.freq = (note, tuning) => {
+  const m = midi(note)
   return m === null ? null : midiToFreq(m, tuning)
 }
 
-export function letter (src) { return (parse(src) || {}).letter }
-export function acc (src) { return (parse(src) || {}).acc }
-export function pc (src) { return (parse(src) || {}).pc }
-export function step (src) { return (parse(src) || {}).step }
-export function alt (src) { return (parse(src) || {}).alt }
-export function chroma (src) { return (parse(src) || {}).chroma }
-export function oct (src) { return (parse(src) || {}).oct }
+module.exports.letter = src => (parse(src) || {}).letter
+module.exports.acc = src => (parse(src) || {}).acc
+module.exports.pc = src => (parse(src) || {}).pc
+module.exports.step = src => (parse(src) || {}).step
+module.exports.alt = src => (parse(src) || {}).alt
+module.exports.chroma = src => (parse(src) || {}).chroma
+module.exports.oct = src => (parse(src) || {}).oct
