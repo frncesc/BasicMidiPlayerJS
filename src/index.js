@@ -1,23 +1,3 @@
-define([
-    './player',
-    './soundfont-player/index',
-    './utils',
-    './constants',
-    './audio-loader/index',
-    './sample-player/index'
-], function (Player, Soundfont, Utils, Constants, load, SamplePlayer) {
-    return {
-        Player: Player.Player,
-        Soundfont: Soundfont.Soundfont,
-        Utils: Utils.Utils,
-        Constants: Constants.Constants,
-        load: load.load,
-        SamplePlayer: SamplePlayer.SamplePlayer,
-
-    }
-})
-
-/*
 const Player = require('./player');
 const Soundfont = require('./soundfont-player/index');
 const Utils = require('./utils');
@@ -33,4 +13,4 @@ module.exports = {
     load: load.load,
     SamplePlayer: SamplePlayer.SamplePlayer,
 }
-*/
+
