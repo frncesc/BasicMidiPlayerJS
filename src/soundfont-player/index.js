@@ -75,12 +75,9 @@ function nameToUrl(name, sf, format) {
   return 'https://gleitz.github.io/midi-js-soundfonts/' + sf + '/' + name + '-' + format + '.js'
 }
 
-// In the 1.0.0 release it will be:
-// var Soundfont = {}
-//const Soundfont = require('./legacy')
-const Soundfont = {}
-Soundfont.instrument = instrument
-Soundfont.nameToUrl = nameToUrl
+const Soundfont = {
+  instrument,
+  nameToUrl,
+}
 
 module.exports = { Soundfont }
-
