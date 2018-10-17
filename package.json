@@ -1,8 +1,8 @@
 {
   "name": "@francesc/basic-midi-player-js",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A basic integration of MidiPlayerJS and soundfont-player for JClic.js",
-  "main": "./src/index",
+  "main": "module/midiplayer.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frncesc/BasicMidiPlayerJS.git"
