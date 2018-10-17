@@ -11,14 +11,17 @@
  */
 module.exports = function (url, type) {
   return new Promise(function (done, reject) {
-    var req = new XMLHttpRequest()
-    if (type) req.responseType = type
+    const req = new XMLHttpRequest()
+    if (type)
+      req.responseType = type
 
     req.open('GET', url)
     req.onload = function () {
-      req.status === 200 ? done(req.response) : reject(Error(req.statusText))
+      if (req.status === 200)
+        done(req.response)
+      reject(Error(req.statusText))
     }
-    req.onerror = function () { reject(Error('Network Error')) }
+    req.onerror = () => reject(Error('Network Error'))
     req.send()
   })
 }

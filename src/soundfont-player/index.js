@@ -37,19 +37,26 @@ const player = require('../sample-player/index').SamplePlayer
  *   marimba.play('C4')
  * })
  */
-function instrument(ac, name, options) {
-  if (arguments.length === 1) return function (n, o) { return instrument(ac, n, o) }
-  const opts = options || {}
-  const isUrl = opts.isSoundfontURL || isSoundfontURL
-  const toUrl = opts.nameToUrl || nameToUrl
-  const url = isUrl(name) ? name : toUrl(name, opts.soundfont, opts.format)
+function instrument(ac, source, options = {}) {
+  if (arguments.length === 1)
+    return function (n, o) { return instrument(ac, n, o) }
 
-  return load(ac, url, { only: opts.only || opts.notes }).then(function (buffers) {
-    const p = player(ac, buffers, opts).connect(opts.destination ? opts.destination : ac.destination)
-    p.url = url
-    p.name = name
-    return p
-  })
+  let instName = '', instUrl = '';
+  if (typeof source === 'string') {
+    instName = source
+    const isUrl = options.isSoundfontURL || isSoundfontURL
+    const toUrl = options.nameToUrl || nameToUrl
+    instUrl = isUrl(source) ? source : toUrl(source, options.soundfont, options.format)
+    source = instUrl
+  }
+
+  return load(ac, source, { only: options.only || options.notes })
+    .then(buffers => {
+      const p = player(ac, buffers, options).connect(options.destination ? options.destination : ac.destination)
+      p.url = instUrl
+      p.name = instName
+      return p
+    })
 }
 
 function isSoundfontURL(name) {

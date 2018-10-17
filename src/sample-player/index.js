@@ -1,10 +1,10 @@
 'use strict'
 
-var player = require('./player')
-var events = require('./events')
-var notes = require('./notes')
-var scheduler = require('./scheduler')
-//var midi = require('./midi')
+const player = require('./player')
+const events = require('./events')
+const notes = require('./notes')
+const scheduler = require('./scheduler')
+//const midi = require('./midi')
 
 function SamplePlayer(ac, source, options) {
   //return midi(scheduler(notes(events(player(ac, source, options)))))

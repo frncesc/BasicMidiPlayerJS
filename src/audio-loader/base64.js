@@ -13,14 +13,14 @@ function b64ToUint6(nChr) {
 // Decode Base64 to Uint8Array
 // ---------------------------
 function decode(sBase64, nBlocksSize) {
-  var sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, '')
-  var nInLen = sB64Enc.length
-  var nOutLen = nBlocksSize
+  const sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, '')
+  const nInLen = sB64Enc.length
+  const nOutLen = nBlocksSize
     ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize
     : nInLen * 3 + 1 >> 2
-  var taBytes = new Uint8Array(nOutLen)
+  const taBytes = new Uint8Array(nOutLen)
 
-  for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+  for (let nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
     nMod4 = nInIdx & 3
     nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 18 - 6 * nMod4
     if (nMod4 === 3 || nInLen - nInIdx === 1) {

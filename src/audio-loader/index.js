@@ -1,7 +1,7 @@
 'use strict'
 
-var base64 = require('./base64')
-var fetch = require('./fetch')
+const base64 = require('./base64')
+const fetch = require('./fetch')
 
 // Given a regex, return a function that test if against a string
 function fromRegex(r) {
@@ -35,7 +35,7 @@ function prefix(pre, name) {
  * in a promise if not valid loader found
  */
 function load(ac, source, options, defVal) {
-  var loader =
+  const loader =
     // Basic audio loading
     isArrayBuffer(source) ? loadArrayBuffer
       : isAudioFileName(source) ? loadAudioFile
@@ -49,10 +49,10 @@ function load(ac, source, options, defVal) {
                   : isJsFileName(source) ? loadMidiJSFile
                     : null
 
-  var opts = options || {}
+  const opts = options || {}
   return loader ? loader(ac, source, opts)
     : defVal ? Promise.resolve(defVal)
-      : Promise.reject('Source not valid (' + source + ')')
+      : Promise.reject(`Source not valid (${source})`)
 }
 load.fetch = fetch
 
@@ -61,24 +61,27 @@ load.fetch = fetch
 
 // Load (decode) an array buffer
 function isArrayBuffer(o) { return o instanceof ArrayBuffer }
-function loadArrayBuffer(ac, array, options) {
+
+function loadArrayBuffer(ac, array, _options) {
   return new Promise(function (done, reject) {
     ac.decodeAudioData(array,
       function (buffer) { done(buffer) },
-      function () { reject("Can't decode audio data (" + array.slice(0, 30) + '...)') }
+      function () { reject(`Can't decode audio data (${array.slice(0, 30)}...)`) }
     )
   })
 }
 
 // Load an audio filename
-var isAudioFileName = fromRegex(/\.(mp3|wav|ogg)(\?.*)?$/i)
+const isAudioFileName = fromRegex(/\.(mp3|wav|ogg)(\?.*)?$/i)
+
 function loadAudioFile(ac, name, options) {
-  var url = prefix(options.from, name)
+  const url = prefix(options.from, name)
   return load(ac, load.fetch(url, 'arraybuffer'), options)
 }
 
 // Load the result of a promise
 function isPromise(o) { return o && typeof o.then === 'function' }
+
 function loadPromise(ac, promise, options) {
   return promise.then(function (value) {
     return load(ac, value, options)
@@ -89,31 +92,35 @@ function loadPromise(ac, promise, options) {
 // ================
 
 // Try to load all the items of an array
-var isArray = Array.isArray
+const isArray = Array.isArray
+
 function loadArrayData(ac, array, options) {
-  return Promise.all(array.map(function (data) {
-    return load(ac, data, options, data)
-  }))
+  return Promise.all(array.map(data => load(ac, data, options, data)))
 }
 
 // Try to load all the values of a key/value object
 function isObject(o) { return o && typeof o === 'object' }
+
 function loadObjectData(ac, obj, options) {
-  var dest = {}
-  var promises = Object.keys(obj).map(function (key) {
-    if (options.only && options.only.indexOf(key) === -1) return null
-    var value = obj[key]
-    return load(ac, value, options, value).then(function (audio) {
-      dest[key] = audio
-    })
+  const dest = {}
+  const promises = Object.keys(obj).map(function (key) {
+    if (options.only && options.only.indexOf(key) === -1)
+      return null
+    const value = obj[key]
+    return load(ac, value, options, value)
+      .then(audio => {
+        dest[key] = audio
+      })
   })
-  return Promise.all(promises).then(function () { return dest })
+  return Promise.all(promises)
+    .then(() => dest)
 }
 
 // Load the content of a JSON file
-var isJsonFileName = fromRegex(/\.json(\?.*)?$/i)
+const isJsonFileName = fromRegex(/\.json(\?.*)?$/i)
+
 function loadJsonFile(ac, name, options) {
-  var url = prefix(options.from, name)
+  const url = prefix(options.from, name)
   return load(ac, load.fetch(url, 'text').then(JSON.parse), options)
 }
 
@@ -121,27 +128,29 @@ function loadJsonFile(ac, name, options) {
 // ======================
 
 // Load strings with Base64 encoded audio
-var isBase64Audio = fromRegex(/^data:audio/)
+const isBase64Audio = fromRegex(/^data:audio/)
+
 function loadBase64Audio(ac, source, options) {
-  var i = source.indexOf(',')
+  const i = source.indexOf(',')
   return load(ac, base64.decode(source.slice(i + 1)).buffer, options)
 }
 
 // Load .js files with MidiJS soundfont prerendered audio
-var isJsFileName = fromRegex(/\.js(\?.*)?$/i)
+const isJsFileName = fromRegex(/\.js(\?.*)?$/i)
+
 function loadMidiJSFile(ac, name, options) {
-  var url = prefix(options.from, name)
+  const url = prefix(options.from, name)
   return load(ac, load.fetch(url, 'text').then(midiJsToJson), options)
 }
 
 // convert a MIDI.js javascript soundfont file to json
 function midiJsToJson(data) {
-  var begin = data.indexOf('MIDI.Soundfont.')
-  if (begin < 0) throw Error('Invalid MIDI.js Soundfont format')
+  let begin = data.indexOf('MIDI.Soundfont.')
+  if (begin < 0)
+    throw Error('Invalid MIDI.js Soundfont format')
   begin = data.indexOf('=', begin) + 2
-  var end = data.lastIndexOf(',')
+  const end = data.lastIndexOf(',')
   return JSON.parse(data.slice(begin, end) + '}')
 }
 
 module.exports = { load }
-
