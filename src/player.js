@@ -42,13 +42,11 @@ class Player {
 	 * @param {string} path - Path of file.
 	 * @return {Player}
 	 */
-	/*
 	loadFile(path) {
-		var fs = require('fs');
+		const fs = require('fs');
 		this.buffer = fs.readFileSync(path);
 		return this.fileLoaded();
 	}
-	*/
 
 	/**
 	 * Load an array buffer into the player.
@@ -68,13 +66,12 @@ class Player {
 	loadDataUri(dataUri) {
 		// convert base64 to raw binary data held in a string.
 		// doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-		var byteString = Utils.atob(dataUri.split(',')[1]);
+		const byteString = window.atob(dataUri.split(',')[1]);
 
 		// write the bytes of the string to an ArrayBuffer
-		var ia = new Uint8Array(byteString.length);
-		for (var i = 0; i < byteString.length; i++) {
+		const ia = new Uint8Array(byteString.length);
+		for (let i = 0; i < byteString.length; i++)
 			ia[i] = byteString.charCodeAt(i);
-		}
 
 		this.buffer = ia;
 		return this.fileLoaded();
@@ -233,14 +230,16 @@ class Player {
 	 * @return {Player}
 	 */
 	play() {
-		if (this.isPlaying()) throw 'Already playing...';
+		if (this.isPlaying())
+			throw 'Already playing...';
 
 		// Initialize
-		if (!this.startTime) this.startTime = (new Date()).getTime();
+		if (!this.startTime)
+			this.startTime = (new Date()).getTime();
 
 		// Start play loop
 		//window.requestAnimationFrame(this.playLoop.bind(this));
-		this.setIntervalId = setInterval(this.playLoop.bind(this), this.sampleRate);
+		this.setIntervalId = window.setInterval(this.playLoop.bind(this), this.sampleRate);
 
 		return this;
 	}
@@ -303,8 +302,9 @@ class Player {
 	 * @return {Player}
 	 */
 	skipToSeconds(seconds) {
-		var songTime = this.getSongTime();
-		if (seconds < 0 || seconds > songTime) throw `${seconds} seconds not within song time of ${songTime}`;
+		const songTime = this.getSongTime();
+		if (seconds < 0 || seconds > songTime)
+			throw `${seconds} seconds not within song time of ${songTime}`;
 		this.skipToPercent(seconds / songTime * 100);
 		return this;
 	}
@@ -324,7 +324,8 @@ class Player {
 	dryRun() {
 		// Reset tracks first
 		this.resetTracks();
-		while (!this.endOfFile()) this.playLoop(true);
+		while (!this.endOfFile())
+			this.playLoop(true);
 		this.events = this.getEvents();
 		this.totalEvents = this.getTotalEvents();
 		this.totalTicks = this.getTotalTicks();
@@ -370,7 +371,10 @@ class Player {
 	 * @return {number}
 	 */
 	getTotalEvents() {
-		return this.tracks.reduce((a, b) => { return { events: { length: a.events.length + b.events.length } } }, { events: { length: 0 } }).events.length;
+		return this.tracks.reduce(
+			(a, b) => { return { events: { length: a.events.length + b.events.length } } },
+			{ events: { length: 0 } }
+		).events.length;
 	}
 
 	/**
@@ -422,9 +426,8 @@ class Player {
 	 * @return {boolean}
 	 */
 	endOfFile() {
-		if (this.isPlaying()) {
+		if (this.isPlaying())
 			return this.eventsPlayed() == this.totalEvents;
-		}
 
 		return this.bytesProcessed() == this.buffer.length;
 	}
@@ -454,7 +457,8 @@ class Player {
 	 * @return {Player}
 	 */
 	on(playerEvent, fn) {
-		if (!this.eventListeners.hasOwnProperty(playerEvent)) this.eventListeners[playerEvent] = [];
+		if (!this.eventListeners.hasOwnProperty(playerEvent))
+			this.eventListeners[playerEvent] = [];
 		this.eventListeners[playerEvent].push(fn);
 		return this;
 	}
@@ -466,10 +470,11 @@ class Player {
 	 * @return {Player}
 	 */
 	triggerPlayerEvent(playerEvent, data) {
-		if (this.eventListeners.hasOwnProperty(playerEvent)) this.eventListeners[playerEvent].forEach(fn => fn(data || {}));
+		if (this.eventListeners.hasOwnProperty(playerEvent))
+			this.eventListeners[playerEvent].forEach(fn => fn(data || {}));
 		return this;
 	}
 
 }
 
-exports.Player = Player;
+module.exports = { Player }

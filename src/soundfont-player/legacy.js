@@ -1,6 +1,6 @@
 'use strict'
 
-var parser = require('../note-parser/index')
+const parser = require('../note-parser/index').parse
 
 /**
  * Create a Soundfont object
@@ -9,10 +9,11 @@ var parser = require('../note-parser/index')
  * @param {Function} nameToUrl - (Optional) a function that maps the sound font name to the url
  * @return {Soundfont} a soundfont object
  */
-function Soundfont (ctx, nameToUrl) {
-  console.warn('new Soundfont() is deprected')
-  console.log('Please use Soundfont.instrument() instead of new Soundfont().instrument()')
-  if (!(this instanceof Soundfont)) return new Soundfont(ctx)
+function Soundfont(ctx, nameToUrl) {
+  //console.warn('new Soundfont() is deprected')
+  //console.log('Please use Soundfont.instrument() instead of new Soundfont().instrument()')
+  if (!(this instanceof Soundfont))
+    return new Soundfont(ctx)
 
   this.nameToUrl = nameToUrl || Soundfont.nameToUrl
   this.ctx = ctx
@@ -21,32 +22,34 @@ function Soundfont (ctx, nameToUrl) {
 }
 
 Soundfont.prototype.onready = function (callback) {
-  console.warn('deprecated API')
-  console.log('Please use Promise.all(Soundfont.instrument(), Soundfont.instrument()).then() instead of new Soundfont().onready()')
+  //console.warn('deprecated API')
+  //console.log('Please use Promise.all(Soundfont.instrument(), Soundfont.instrument()).then() instead of new Soundfont().onready()')
   Promise.all(this.promises).then(callback)
 }
 
 Soundfont.prototype.instrument = function (name, options) {
-  console.warn('new Soundfont().instrument() is deprecated.')
-  console.log('Please use Soundfont.instrument() instead.')
-  var ctx = this.ctx
+  //console.warn('new Soundfont().instrument() is deprecated.')
+  //console.log('Please use Soundfont.instrument() instead.')
+  const ctx = this.ctx
   name = name || 'default'
-  if (name in this.instruments) return this.instruments[name]
-  var inst = {name: name, play: oscillatorPlayer(ctx, options)}
+  if (name in this.instruments)
+    return this.instruments[name]
+  const inst = { name: name, play: oscillatorPlayer(ctx, options) }
   this.instruments[name] = inst
   if (name !== 'default') {
-    var promise = Soundfont.instrument(ctx, name, options).then(function (instrument) {
-      inst.play = instrument.play
-      return inst
-    })
+    const promise = Soundfont.instrument(ctx, name, options)
+      .then(instrument => {
+        inst.play = instrument.play
+        return inst
+      })
     this.promises.push(promise)
     inst.onready = function (cb) {
-      console.warn('onready is deprecated. Use Soundfont.instrument().then()')
+      //console.warn('onready is deprecated. Use Soundfont.instrument().then()')
       promise.then(cb)
     }
   } else {
     inst.onready = function (cb) {
-      console.warn('onready is deprecated. Use Soundfont.instrument().then()')
+      //console.warn('onready is deprecated. Use Soundfont.instrument().then()')
       cb()
     }
   }
@@ -75,12 +78,11 @@ Soundfont.prototype.instrument = function (name, options) {
  *  buffers[60] // => An <AudioBuffer> corresponding to note C4
  * })
  */
-function loadBuffers (ac, name, options) {
-  console.warn('Soundfont.loadBuffers is deprecate.')
-  console.log('Use Soundfont.instrument(..) and get buffers properties from the result.')
-  return Soundfont.instrument(ac, name, options).then(function (inst) {
-    return inst.buffers
-  })
+function loadBuffers(ac, name, options) {
+  //console.warn('Soundfont.loadBuffers is deprecate.')
+  //console.log('Use Soundfont.instrument(..) and get buffers properties from the result.')
+  return Soundfont.instrument(ac, name, options)
+    .then(inst => inst.buffers)
 }
 Soundfont.loadBuffers = loadBuffers
 
@@ -93,28 +95,29 @@ Soundfont.loadBuffers = loadBuffers
  * - gain: the output gain value (default: 0.4)
   * - destination: the player destination (default: ac.destination)
  */
-function oscillatorPlayer (ctx, defaultOptions) {
+function oscillatorPlayer(ctx, defaultOptions) {
   defaultOptions = defaultOptions || {}
   return function (note, time, duration, options) {
-    console.warn('The oscillator player is deprecated.')
-    console.log('Starting with version 0.9.0 you will have to wait until the soundfont is loaded to play sounds.')
-    var midi = note > 0 && note < 129 ? +note : parser.midi(note)
-    var freq = midi ? parser.midiToFreq(midi, 440) : null
-    if (!freq) return
+    //console.warn('The oscillator player is deprecated.')
+    //console.log('Starting with version 0.9.0 you will have to wait until the soundfont is loaded to play sounds.')
+    const midi = note > 0 && note < 129 ? +note : parser.midi(note)
+    const freq = midi ? parser.midiToFreq(midi, 440) : null
+    if (!freq)
+      return
 
     duration = duration || 0.2
 
     options = options || {}
-    var destination = options.destination || defaultOptions.destination || ctx.destination
-    var vcoType = options.vcoType || defaultOptions.vcoType || 'sine'
-    var gain = options.gain || defaultOptions.gain || 0.4
+    const destination = options.destination || defaultOptions.destination || ctx.destination
+    const vcoType = options.vcoType || defaultOptions.vcoType || 'sine'
+    const gain = options.gain || defaultOptions.gain || 0.4
 
-    var vco = ctx.createOscillator()
+    const vco = ctx.createOscillator()
     vco.type = vcoType
     vco.frequency.value = freq
 
     /* VCA */
-    var vca = ctx.createGain()
+    const vca = ctx.createGain()
     vca.gain.value = gain
 
     /* Connections */
@@ -122,7 +125,8 @@ function oscillatorPlayer (ctx, defaultOptions) {
     vca.connect(destination)
 
     vco.start(time)
-    if (duration > 0) vco.stop(time + duration)
+    if (duration > 0)
+      vco.stop(time + duration)
     return vco
   }
 }

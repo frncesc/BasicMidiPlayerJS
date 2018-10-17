@@ -4,7 +4,7 @@ const Utils = require('./utils').Utils;
 /**
  * Class representing a track.  Contains methods for parsing events and keeping track of pointer.
  */
-class Track	{
+class Track {
 	constructor(index, data) {
 		this.enabled = true;
 		this.eventIndex = 0;
@@ -59,7 +59,7 @@ class Track	{
 	setEventIndexByTick(tick) {
 		tick = tick || 0;
 
-		for (var i in this.events) {
+		for (let i in this.events) {
 			if (this.events[i].tick >= tick) {
 				this.eventIndex = i;
 				return this;
@@ -83,10 +83,10 @@ class Track	{
 		// Get byte count of delta VLV
 		// http://www.ccarh.org/courses/253/handout/vlv/
 		// If byte is greater or equal to 80h (128 decimal) then the next byte
-	    // is also part of the VLV,
-	   	// else byte is the last byte in a VLV.
-	   	var currentByte = this.getCurrentByte();
-	   	var byteCount = 1;
+		// is also part of the VLV,
+		// else byte is the last byte in a VLV.
+		let currentByte = this.getCurrentByte();
+		let byteCount = 1;
 
 		while (currentByte >= 128) {
 			currentByte = this.data[this.pointer + byteCount];
@@ -113,13 +113,14 @@ class Track	{
 		dryRun = dryRun || false;
 
 		if (dryRun) {
-			var elapsedTicks = currentTick - this.lastTick;
-			var delta = this.getDelta();
-			var eventReady = elapsedTicks >= delta;
+			const elapsedTicks = currentTick - this.lastTick;
+			const delta = this.getDelta();
+			const eventReady = elapsedTicks >= delta;
 
 			if (this.pointer < this.data.length && (dryRun || eventReady)) {
-				let event = this.parseEvent();
-				if (this.enabled) return event;
+				const event = this.parseEvent();
+				if (this.enabled)
+					return event;
 				// Recursively call this function for each event ahead that has 0 delta time?
 			}
 
@@ -127,7 +128,8 @@ class Track	{
 			// Let's actually play the MIDI from the generated JSON events created by the dry run.
 			if (this.events[this.eventIndex] && this.events[this.eventIndex].tick <= currentTick) {
 				this.eventIndex++;
-				if (this.enabled) return this.events[this.eventIndex - 1];
+				if (this.enabled)
+					return this.events[this.eventIndex - 1];
 			}
 		}
 
@@ -140,10 +142,10 @@ class Track	{
 	 * @return {string}
 	 */
 	getStringData(eventStartIndex) {
-		var currentByte = this.pointer;
-		var byteCount = 1;
-		var length = Utils.readVarInt(this.data.subarray(eventStartIndex + 2, eventStartIndex + 2 + byteCount));
-		var stringLength = length;
+		//const currentByte = this.pointer;
+		const byteCount = 1;
+		const length = Utils.readVarInt(this.data.subarray(eventStartIndex + 2, eventStartIndex + 2 + byteCount));
+		//const stringLength = length;
 
 		return Utils.bytesToLetters(this.data.subarray(eventStartIndex + byteCount + 2, eventStartIndex + byteCount + length + 2));
 	}
@@ -153,9 +155,9 @@ class Track	{
 	 * @return {object}
 	 */
 	parseEvent() {
-		var eventStartIndex = this.pointer + this.getDeltaByteCount();
-		var eventJson = {};
-		var deltaByteCount = this.getDeltaByteCount();
+		const eventStartIndex = this.pointer + this.getDeltaByteCount();
+		const eventJson = {};
+		const deltaByteCount = this.getDeltaByteCount();
 		eventJson.track = this.index + 1;
 		eventJson.delta = this.getDelta();
 		this.lastTick = this.lastTick + eventJson.delta;
@@ -171,7 +173,7 @@ class Track	{
 			// otherwise if we let it run through the next cycle a slight delay will accumulate if multiple tracks
 			// are being played simultaneously
 
-			switch(this.data[eventStartIndex + 1]) {
+			switch (this.data[eventStartIndex + 1]) {
 				case 0x00: // Sequence Number
 					eventJson.name = 'Sequence Number';
 					break;
@@ -257,15 +259,15 @@ class Track	{
 					break;
 			}
 
-			var length = this.data[this.pointer + deltaByteCount + 2];
+			const length = this.data[this.pointer + deltaByteCount + 2];
 			// Some meta events will have vlv that needs to be handled
 
 			this.pointer += deltaByteCount + 3 + length;
 
-		} else if(this.data[eventStartIndex] == 0xf0) {
+		} else if (this.data[eventStartIndex] == 0xf0) {
 			// Sysex
 			eventJson.name = 'Sysex';
-			var length = this.data[this.pointer + deltaByteCount + 1];
+			const length = this.data[this.pointer + deltaByteCount + 1];
 			this.pointer += deltaByteCount + 2 + length;
 
 		} else {
@@ -361,12 +363,11 @@ class Track	{
 	 * @param {boolean}
 	 */
 	endOfTrack() {
-		if (this.data[this.pointer + 1] == 0xff && this.data[this.pointer + 2] == 0x2f && this.data[this.pointer + 3] == 0x00) {
+		if (this.data[this.pointer + 1] == 0xff && this.data[this.pointer + 2] == 0x2f && this.data[this.pointer + 3] == 0x00)
 			return true;
-		}
 
 		return false;
 	}
 }
 
-module.exports.Track = Track;
+module.exports = { Track }

@@ -1,7 +1,7 @@
 'use strict'
 
-var load = require('../audio-loader/index')
-var player = require('../sample-player/index')
+const load = require('../audio-loader/index').load
+const player = require('../sample-player/index').SamplePlayer
 
 /**
  * Load a soundfont instrument. It returns a promise that resolves to a
@@ -37,22 +37,22 @@ var player = require('../sample-player/index')
  *   marimba.play('C4')
  * })
  */
-function instrument (ac, name, options) {
+function instrument(ac, name, options) {
   if (arguments.length === 1) return function (n, o) { return instrument(ac, n, o) }
-  var opts = options || {}
-  var isUrl = opts.isSoundfontURL || isSoundfontURL
-  var toUrl = opts.nameToUrl || nameToUrl
-  var url = isUrl(name) ? name : toUrl(name, opts.soundfont, opts.format)
+  const opts = options || {}
+  const isUrl = opts.isSoundfontURL || isSoundfontURL
+  const toUrl = opts.nameToUrl || nameToUrl
+  const url = isUrl(name) ? name : toUrl(name, opts.soundfont, opts.format)
 
   return load(ac, url, { only: opts.only || opts.notes }).then(function (buffers) {
-    var p = player(ac, buffers, opts).connect(opts.destination ? opts.destination : ac.destination)
+    const p = player(ac, buffers, opts).connect(opts.destination ? opts.destination : ac.destination)
     p.url = url
     p.name = name
     return p
   })
 }
 
-function isSoundfontURL (name) {
+function isSoundfontURL(name) {
   return /\.js(\?.*)?$/i.test(name)
 }
 
@@ -69,7 +69,7 @@ function isSoundfontURL (name) {
  * var Soundfont = require('soundfont-player')
  * Soundfont.nameToUrl('marimba', 'mp3')
  */
-function nameToUrl (name, sf, format) {
+function nameToUrl(name, sf, format) {
   format = format === 'ogg' ? format : 'mp3'
   sf = sf === 'FluidR3_GM' ? sf : 'MusyngKite'
   return 'https://gleitz.github.io/midi-js-soundfonts/' + sf + '/' + name + '-' + format + '.js'
@@ -77,11 +77,10 @@ function nameToUrl (name, sf, format) {
 
 // In the 1.0.0 release it will be:
 // var Soundfont = {}
-var Soundfont = require('./legacy')
+//const Soundfont = require('./legacy')
+const Soundfont = {}
 Soundfont.instrument = instrument
 Soundfont.nameToUrl = nameToUrl
 
-//if (typeof module === 'object' && module.exports) module.exports = Soundfont
-//if (typeof window !== 'undefined') window.Soundfont = Soundfont
-module.exports.Soundfont = Soundfont
+module.exports = { Soundfont }
 

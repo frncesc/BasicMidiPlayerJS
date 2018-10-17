@@ -1,10 +1,10 @@
 /* global AudioBuffer */
 'use strict'
 
-var ADSR = require('../adsr/index')
+const ADSR = require('../adsr/index')
 
-var EMPTY = {}
-var DEFAULTS = {
+const EMPTY = {}
+const DEFAULTS = {
   gain: 1,
   attack: 0.01,
   decay: 0.1,
@@ -24,26 +24,28 @@ var DEFAULTS = {
  * @param {Onject} options - (Optional) an options object
  * @return {player} the player
  * @example
- * var SamplePlayer = require('sample-player')
- * var ac = new AudioContext()
- * var snare = SamplePlayer(ac, <AudioBuffer>)
+ * const SamplePlayer = require('sample-player')
+ * const ac = new AudioContext()
+ * const snare = SamplePlayer(ac, <AudioBuffer>)
  * snare.play()
  */
-function SamplePlayer (ac, source, options) {
-  var connected = false
-  var nextId = 0
-  var tracked = {}
-  var out = ac.createGain()
+function SamplePlayer(ac, source, options) {
+  let connected = false
+  let nextId = 0
+  let tracked = {}
+  const out = ac.createGain()
   out.gain.value = 1
 
-  var opts = Object.assign({}, DEFAULTS, options)
+  const opts = Object.assign({}, DEFAULTS, options)
 
   /**
    * @namespace
    */
-  var player = { context: ac, out: out, opts: opts }
-  if (source instanceof AudioBuffer) player.buffer = source
-  else player.buffers = source
+  const player = { context: ac, out, opts }
+  if (source instanceof AudioBuffer)
+    player.buffer = source
+  else
+    player.buffers = source
 
   /**
    * Start a sample buffer.
@@ -66,18 +68,19 @@ function SamplePlayer (ac, source, options) {
    */
   player.start = function (name, when, options) {
     // if only one buffer, reorder arguments
-    if (player.buffer && name !== null) return player.start(null, name, when)
+    if (player.buffer && name !== null)
+      return player.start(null, name, when)
 
     var buffer = name ? player.buffers[name] : player.buffer
     if (!buffer) {
-      console.warn('Buffer ' + name + ' not found.')
+      console.warn(`Buffer ${name} not found.`)
       return
     } else if (!connected) {
       console.warn('SamplePlayer not connected to any node.')
       return
     }
 
-    var opts = options || EMPTY
+    const opts = options || EMPTY
     when = Math.max(ac.currentTime, when || 0)
     player.emit('start', when, name, opts)
     var node = createNode(name, buffer, opts)
@@ -85,7 +88,8 @@ function SamplePlayer (ac, source, options) {
     node.env.start(when)
     node.source.start(when)
     player.emit('started', when, node.id, node)
-    if (opts.duration) node.stop(when + opts.duration)
+    if (opts.duration)
+      node.stop(when + opts.duration)
     return node
   }
 
@@ -116,10 +120,9 @@ function SamplePlayer (ac, source, options) {
    * longSound.stop(ac.currentTime + 3) // stop the three sounds
    */
   player.stop = function (when, ids) {
-    var node
     ids = ids || Object.keys(tracked)
     return ids.map(function (id) {
-      node = tracked[id]
+      const node = tracked[id]
       if (!node) return null
       node.stop(when)
       return node.id
@@ -142,7 +145,7 @@ function SamplePlayer (ac, source, options) {
 
   player.emit = function (event, when, obj, opts) {
     if (player.onevent) player.onevent(event, when, obj, opts)
-    var fn = player['on' + event]
+    const fn = player['on' + event]
     if (fn) fn(when, obj, opts)
   }
 
@@ -150,11 +153,11 @@ function SamplePlayer (ac, source, options) {
 
   // =============== PRIVATE FUNCTIONS ============== //
 
-  function track (name, node) {
+  function track(name, node) {
     node.id = nextId++
     tracked[node.id] = node
     node.source.onended = function () {
-      var now = ac.currentTime
+      const now = ac.currentTime
       node.source.disconnect()
       node.env.disconnect()
       node.disconnect()
@@ -163,8 +166,8 @@ function SamplePlayer (ac, source, options) {
     return node.id
   }
 
-  function createNode (name, buffer, options) {
-    var node = ac.createGain()
+  function createNode(name, buffer, options) {
+    const node = ac.createGain()
     node.gain.value = 0 // the envelope will control the gain
     node.connect(out)
 
@@ -179,20 +182,22 @@ function SamplePlayer (ac, source, options) {
     node.source.loopStart = options.loopStart || opts.loopStart
     node.source.loopEnd = options.loopEnd || opts.loopEnd
     node.stop = function (when) {
-      var time = when || ac.currentTime
+      const time = when || ac.currentTime
       player.emit('stop', time, name)
-      var stopAt = node.env.stop(time)
+      const stopAt = node.env.stop(time)
       node.source.stop(stopAt)
     }
     return node
   }
 }
 
-function isNum (x) { return typeof x === 'number' }
-var PARAMS = ['attack', 'decay', 'sustain', 'release']
-function envelope (ac, options, opts) {
-  var env = ADSR(ac)
-  var adsr = options.adsr || opts.adsr
+function isNum(x) { return typeof x === 'number' }
+
+const PARAMS = ['attack', 'decay', 'sustain', 'release']
+
+function envelope(ac, options, opts) {
+  const env = ADSR(ac)
+  const adsr = options.adsr || opts.adsr
   PARAMS.forEach(function (name, i) {
     if (adsr) env[name] = adsr[i]
     else env[name] = options[name] || opts[name]
@@ -207,6 +212,6 @@ function envelope (ac, options, opts) {
  * Basic [math](http://www.birdsoft.demon.co.uk/music/samplert.htm):
  * f2 = f1 * 2^( C / 1200 )
  */
-function centsToRate (cents) { return cents ? Math.pow(2, cents / 1200) : 1 }
+function centsToRate(cents) { return cents ? Math.pow(2, cents / 1200) : 1 }
 
 module.exports = SamplePlayer

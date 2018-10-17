@@ -28,7 +28,7 @@ module.exports = function (player) {
   return player
 }
 
-function mapBuffers (buffers, toKey) {
+function mapBuffers(buffers, toKey) {
   return Object.keys(buffers).reduce(function (mapped, name) {
     mapped[toKey(name)] = buffers[name]
     return mapped

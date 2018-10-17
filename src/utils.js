@@ -19,7 +19,7 @@ class Utils {
 	 * @return {string}
 	 */
 	static bytesToHex(byteArray) {
-		var hex = [];
+		const hex = [];
 		byteArray.forEach(byte => hex.push(Utils.byteToHex(byte)));
 		return hex.join('');
 	}
@@ -48,7 +48,7 @@ class Utils {
 	 * @return {string}
 	 */
 	static bytesToLetters(byteArray) {
-		var letters = [];
+		const letters = [];
 		byteArray.forEach(byte => letters.push(String.fromCharCode(byte)));
 		return letters.join('');
 	}
@@ -59,7 +59,7 @@ class Utils {
 	 * @return {string}
 	 */
 	static decToBinary(dec) {
-    	return (dec >>> 0).toString(2);
+		return (dec >>> 0).toString(2);
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Utils {
 	 * @return {number}
 	 */
 	static readVarInt(byteArray) {
-		var result = 0;
+		let result = 0;
 		byteArray.forEach(number => {
 			var b = number;
 			if (b & 0x80) {
@@ -88,10 +88,12 @@ class Utils {
 	 * @param {string} string
 	 * @return {string}
 	 */
+	/* Only for NodeJS!
 	static atob(string) {
 		if (typeof atob === 'function') return atob(string);
 		return new Buffer(string, 'base64').toString('binary');
 	}
+	*/
 }
 
-exports.Utils = Utils;
+module.exports = { Utils }

@@ -1,7 +1,5 @@
 'use strict'
 
-module.exports = {}
-
 // util
 const fillStr = (s, num) => Array(num + 1).join(s)
 const isNum = x => typeof x === 'number'
@@ -44,7 +42,7 @@ const REGEX = /^([a-gA-G])(#{1,}|b{1,}|x{1,}|)(-?\d*)\s*(.*)\s*$/
  * parser.regex().exec('CMaj7')
  * // => ['CMaj7', 'C', '', '', 'Maj7']
  */
-module.exports.regex = () => REGEX;
+function regex() { return REGEX };
 
 const SEMITONES = [0, 2, 4, 5, 7, 9, 11]
 /**
@@ -90,10 +88,12 @@ const SEMITONES = [0, 2, 4, 5, 7, 9, 11]
  * parse('fx')
  * // => { letter: 'F', acc: '##', pc: 'F##', step: 3, alt: 2, chroma: 7 })
  */
-module.exports.parse = (str, isTonic, tuning) => {
-  if (typeof str !== 'string') return null
+function parse(str, isTonic, tuning) {
+  if (typeof str !== 'string')
+    return null
   const m = REGEX.exec(str)
-  if (!m || (!isTonic && m[4])) return null
+  if (!m || (!isTonic && m[4]))
+    return null
 
   const p = { letter: m[1].toUpperCase(), acc: m[2].replace(/x/g, '##') }
   p.pc = p.letter + p.acc
@@ -106,7 +106,8 @@ module.exports.parse = (str, isTonic, tuning) => {
     p.midi = pos + 12 * (p.oct + 1)
     p.freq = midiToFreq(p.midi, tuning)
   }
-  if (isTonic) p.tonicOf = m[4]
+  if (isTonic)
+    p.tonicOf = m[4]
   return p
 }
 
@@ -128,10 +129,13 @@ const octStr = n => !isNum(n) ? '' : '' + n
  * parser.build(3, -1) // => 'Fb'
  * parser.build(3, -1, 4) // => 'Fb4'
  */
-module.exports.build = (s, a, o) => {
-  if (s === null || typeof s === 'undefined') return null
-  if (s.step) return build(s.step, s.alt, s.oct)
-  if (s < 0 || s > 6) return null
+function build(s, a, o) {
+  if (s === null || typeof s === 'undefined')
+    return null
+  if (s.step)
+    return build(s.step, s.alt, s.oct)
+  if (s < 0 || s > 6)
+    return null
   return LETTERS.charAt(s) + accStr(a) + octStr(o)
 }
 
@@ -152,8 +156,9 @@ module.exports.build = (s, a, o) => {
  * parser.midi(60) // => 60
  * parser.midi('60') // => 60
  */
-module.exports.midi = note => {
-  if ((isNum(note) || isStr(note)) && note >= 0 && note < 128) return +note
+function midi(note) {
+  if ((isNum(note) || isStr(note)) && note >= 0 && note < 128)
+    return +note
   const p = parse(note)
   return p && isDef(p.midi) ? p.midi : null
 }
@@ -179,15 +184,30 @@ module.exports.midi = note => {
  * parser.freq(69) // => 440
  * parser.freq('69', 442) // => 442
  */
-module.exports.freq = (note, tuning) => {
+function freq(note, tuning) {
   const m = midi(note)
   return m === null ? null : midiToFreq(m, tuning)
 }
 
-module.exports.letter = src => (parse(src) || {}).letter
-module.exports.acc = src => (parse(src) || {}).acc
-module.exports.pc = src => (parse(src) || {}).pc
-module.exports.step = src => (parse(src) || {}).step
-module.exports.alt = src => (parse(src) || {}).alt
-module.exports.chroma = src => (parse(src) || {}).chroma
-module.exports.oct = src => (parse(src) || {}).oct
+const letter = src => (parse(src) || {}).letter
+const acc = src => (parse(src) || {}).acc
+const pc = src => (parse(src) || {}).pc
+const step = src => (parse(src) || {}).step
+const alt = src => (parse(src) || {}).alt
+const chroma = src => (parse(src) || {}).chroma
+const oct = src => (parse(src) || {}).oct
+
+module.exports = {
+  regex,
+  parse,
+  build,
+  midi,
+  freq,
+  letter,
+  acc,
+  pc,
+  step,
+  alt,
+  chroma,
+  oct,
+}
